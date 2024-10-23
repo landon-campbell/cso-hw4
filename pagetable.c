@@ -3,6 +3,7 @@
 #include "mlpt.h"
 #include "config.h"
 #include <stdalign.h>
+#include <string.h>
 
 size_t ptbr; // Definition of ptbr
 
@@ -32,11 +33,11 @@ size_t translate(size_t va){
     for (int i = 0; i < LEVELS; i++){
         size_t page_table_entry = page_table[indicies[i]];
 
-        size_t flg = page_table_entry & ((1ULL << POBITS) - 1);
+        size_t valid_bit = page_table_entry & ((1ULL << POBITS) - 1);
         size_t next_level_address = page_table_entry & ~((1ULL << POBITS) - 1);
 
         // check for invalid bit
-        if (!(flg & 1ULL)){
+        if (!(valid_bit & 1ULL)){
             // invalid and return all 1 bits
             return (size_t) ~0ULL;
         }
@@ -73,9 +74,6 @@ void page_allocate(size_t va){
         memset((void *) ptbr, 0, page_table_size);
     }
 
-    // define offset using bitwise AND
-    size_t offset = va & ((1ULL << POBITS) - 1);
-
     size_t indicies[LEVELS];
     size_t truncated_va = va >> POBITS;
 
@@ -92,11 +90,11 @@ void page_allocate(size_t va){
     for (int i = 0; i < LEVELS; i++){
         size_t page_table_entry = page_table[indicies[i]];
 
-        size_t flg = page_table_entry & ((1ULL << POBITS) - 1);
+        size_t valid_bit = page_table_entry & ((1ULL << POBITS) - 1);
         size_t next_level_address = page_table_entry & ~((1ULL << POBITS) - 1);
 
         // check if the valid bit is invalid, and allocate memory for the page table
-        if (!(flg & 1ULL)){
+        if (!(valid_bit & 1ULL)){
             // if only the last level, allocate memory for the PP
             if (i == LEVELS - 1){
                 // define page table size and allocate memory using memalign
