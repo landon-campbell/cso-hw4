@@ -1,3 +1,6 @@
+#ifndef MLPT_H
+#define MLPT_H
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -23,3 +26,5 @@ size_t translate(size_t va);
  * If there already is such a page, does nothing.
  */
 void page_allocate(size_t va);
+
+#endif
