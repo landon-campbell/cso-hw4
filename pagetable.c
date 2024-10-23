@@ -20,10 +20,13 @@ size_t translate(size_t va){
     size_t indicies[LEVELS];
     size_t truncated_va = va >> POBITS;
 
+    // determine num bits per index
+    size_t bits_per_index = POBITS - 3;
+
     // get the indicies using bit shifting
     for (int i = LEVELS - 1; i >= 0; i--){
         indicies[i] = truncated_va & ((1ULL << POBITS) - 1);
-        truncated_va = truncated_va >> POBITS;
+        truncated_va = truncated_va >> bits_per_index;
     }
 
     // get the page table using the page table base register
@@ -33,11 +36,11 @@ size_t translate(size_t va){
     for (int i = 0; i < LEVELS; i++){
         size_t page_table_entry = page_table[indicies[i]];
 
-        size_t valid_bit = page_table_entry & ((1ULL << POBITS) - 1);
-        size_t next_level_address = page_table_entry & ~((1ULL << POBITS) - 1);
+        size_t valid_bit = page_table_entry & 1ULL;
+        size_t next_level_address = page_table_entry & ~(1ULL);
 
         // check for invalid bit
-        if (!(valid_bit & 1ULL)){
+        if (!(valid_bit)){
             // invalid and return all 1 bits
             return (size_t) ~0ULL;
         }
@@ -61,8 +64,8 @@ void page_allocate(size_t va){
 
     if (ptbr == 0){
         // allocate memory for the page table
-        size_t page_table_size = (1ULL << POBITS) * sizeof(size_t);
-        int ret = posix_memalign((void **)&ptbr, (1ULL << POBITS), page_table_size);
+        size_t page_table_size = (1ULL << POBITS);
+        int ret = posix_memalign((void **)&ptbr, page_table_size, page_table_size);
 
         // ensure that posix_memalign was successful
         if (ret != 0){
@@ -77,10 +80,13 @@ void page_allocate(size_t va){
     size_t indicies[LEVELS];
     size_t truncated_va = va >> POBITS;
 
+    // determine num bits per index
+    size_t bits_per_index = POBITS - 3;
+
     // get the indicies for each level using bit shifting
     for (int i = LEVELS - 1; i >= 0; i--){
-        indicies[i] = truncated_va & ((1ULL << POBITS) - 1);
-        truncated_va = truncated_va >> POBITS;
+        indicies[i] = truncated_va & ((1ULL << bits_per_index) - 1);
+        truncated_va = truncated_va >> bits_per_index;
     }
 
     // get the page table using the page table base register
@@ -90,17 +96,17 @@ void page_allocate(size_t va){
     for (int i = 0; i < LEVELS; i++){
         size_t page_table_entry = page_table[indicies[i]];
 
-        size_t valid_bit = page_table_entry & ((1ULL << POBITS) - 1);
-        size_t next_level_address = page_table_entry & ~((1ULL << POBITS) - 1);
+        size_t valid_bit = page_table_entry & 1ULL;
+        size_t next_level_address = page_table_entry & ~(1ULL);
 
         // check if the valid bit is invalid, and allocate memory for the page table
-        if (!(valid_bit & 1ULL)){
+        if (!(valid_bit)){
             // if only the last level, allocate memory for the PP
             if (i == LEVELS - 1){
                 // define page table size and allocate memory using memalign
-                size_t page_table_size = (1ULL << POBITS);
                 void *physical_page;
-                int ret = posix_memalign(&physical_page, (1ULL << POBITS), page_table_size);
+                size_t page_table_size = (1ULL << POBITS);
+                int ret = posix_memalign(&physical_page, page_table_size, page_table_size);
 
                 // ensure that posix_memalign was successful
                 if (ret != 0){
@@ -114,9 +120,9 @@ void page_allocate(size_t va){
             // not on last level, allocate memory for the next level page table
             else {
                 // define page table size and allocate memory using memalign
-                size_t page_table_size = (1ULL << POBITS) * sizeof(size_t);
                 void *next_level_page_table;
-                int ret = posix_memalign(&next_level_page_table, (1ULL << POBITS), page_table_size);
+                size_t page_table_size = (1ULL << POBITS);
+                int ret = posix_memalign(&next_level_page_table, page_table_size, page_table_size);
 
                 // ensure that posix_memalign was successful
                 if (ret != 0){
