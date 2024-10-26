@@ -1,18 +1,20 @@
 CC = gcc
-CFLAGS = -Og -Wall -fPIC
-LDFLAGS = -fsanitize=address -shared
+CFLAGS = -Og -Wall
+LDFLAGS = -fsanitize=address
+AR = ar
+ARFLAGS = rcs
 
-LIB = libmlpt.so
+LIB = libmlpt.a
 
-.phony: all clean
+.PHONY: all clean
 
 all: $(LIB)
 
 $(LIB): pagetable.o
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(AR) $(ARFLAGS) $@ $^
 
 pagetable.o: pagetable.c mlpt.h config.h
-	$(CC) $(CFLAGS) -c -o $@ pagetable.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o $@ pagetable.c
 
 clean:
 	rm -f pagetable.o $(LIB)

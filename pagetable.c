@@ -7,8 +7,6 @@
 
 size_t ptbr; // Definition of ptbr
 
-//NOTE: For makefile, not sure if it's required but I believe the lib should be in .a format
-
 size_t translate(size_t va) {
 
     if (ptbr == 0) {
@@ -139,7 +137,7 @@ void page_allocate(size_t va){
             // page table entry to be updated
             page_table_entry = next_level_address | 1ULL;
             // set the page table entry in the page table
-            page_table[page_table_level_indicies[i]] = page_table_entry;
+            page_table[page_table_level_indicies[level]] = page_table_entry;
         }
 
         // not on last level, get the next level page table
