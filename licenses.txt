@@ -1,0 +1,16 @@
+(GPL) GNU General Public License
+- Requires that any derivative work is also licensed under the GPL, which ensures that the source code 
+is always available to the public, even if it is modified or derived.
+- This license is often used for open-source software, and it is one of the most popular licenses for 
+free software, but I decided against it because it requires that users make their code open-source.
+
+(MIT) License
+- License that allows users to do almost anything with the code, including modification and distribution.
+- I will choose this license because it allows me do how I see fit with the software, it is short and simple, and any authorized users can use this library without additional issues.
+- It also have the name MIT in it, which is cool I guess.
+
+(Apache) License 2.0
+- License that allows users to do almost anything with the code, including modification and distribution. This license is unique to those above because it
+includes a patent license, which protects users from patent lawsuits.
+- I decided against this license because it is more complex than the MIT License, and I do not want to deal with the extra complexity.
+
